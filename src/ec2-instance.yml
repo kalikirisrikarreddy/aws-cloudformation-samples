@@ -1,0 +1,29 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description:              This contains ec2 instance deployment
+
+Parameters:
+  AmazonLinuxImageId1:
+    Type:                 String
+    Default:              ami-e1e18a8e
+  MumbaiAZ1:
+    Type:                 String
+    Default:              ap-south-1a
+  FreeTierInstanceType:
+    Type:                 String
+    Default:              t2.micro
+
+Resources:
+  SimpleEC2Instance:
+    Type:                 AWS::EC2::Instance
+    Properties:
+      AvailabilityZone:   !Ref MumbaiAZ1
+      ImageId:            !Ref AmazonLinuxImageId1
+      InstanceType:       !Ref FreeTierInstanceType
+
+Outputs:
+  SimpleEC2Instance:
+    Description:          A reference to simple ec2 instance
+    Value:                !Ref SimpleEC2Instance
+    Export:
+      Name:               !Sub ${AWS::StackName}::SimpleEC2Instance
