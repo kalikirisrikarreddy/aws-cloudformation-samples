@@ -1,0 +1,61 @@
+AWSTemplateFormatVersion:                 2010-09-09
+
+Description:                              This contains security group deployment
+
+Resources:
+
+  SecurityGroup1:
+    Type:                                 AWS::EC2::SecurityGroup
+    Properties:
+      GroupName:                          SecurityGroup1
+      GroupDescription:                   allow connections from specified security group
+  SecurityGroup2ToSecurityGroup1Ingress:
+    Type:                                 AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol:                         tcp
+      FromPort:                           22
+      ToPort:                             22
+      GroupId:                            !GetAtt SecurityGroup1.GroupId
+      SourceSecurityGroupId:              !GetAtt SecurityGroup2.GroupId
+  MyIpToSecurityGroup1Ingress:
+    Type:                                 AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol:                         tcp
+      FromPort:                           22
+      ToPort:                             22
+      CidrIp:                             45.112.186.36/32
+      GroupId:                            !GetAtt SecurityGroup1.GroupId
+
+  SecurityGroup2:
+    Type:                                 AWS::EC2::SecurityGroup
+    Properties:
+      GroupName:                          SecurityGroup2
+      GroupDescription:                   allow connections from specified security group
+  SecurityGroup1ToSecurityGroup2Ingress:
+    Type:                                 AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol:                         tcp
+      FromPort:                           22
+      ToPort:                             22
+      GroupId:                            !GetAtt SecurityGroup2.GroupId
+      SourceSecurityGroupId:              !GetAtt SecurityGroup1.GroupId
+  MyIpToSecurityGroup2Ingress:
+    Type:                                 AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol:                         tcp
+      FromPort:                           22
+      ToPort:                             22
+      CidrIp:                             45.112.186.36/32
+      GroupId:                            !GetAtt SecurityGroup2.GroupId
+
+Outputs:
+  SecurityGroup1:
+    Description:                          A simple security group
+    Value:                                !Ref SecurityGroup1
+    Export:
+      Name:                               !Sub ${AWS::StackName}::SecurityGroup1
+  SecurityGroup2:
+    Description:                          A simple security group
+    Value:                                !Ref SecurityGroup2
+    Export:
+      Name:                               !Sub ${AWS::StackName}::SecurityGroup2

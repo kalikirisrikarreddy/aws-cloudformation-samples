@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description:              This contains ec2 instance deployment
+
+Parameters:
+  AmazonLinuxImageId:
+    Type:                 String
+    Default:              ami-e1e18a8e
+  MumbaiAZ1:
+    Type:                 String
+    Default:              ap-south-1a
+  FreeTierInstanceType:
+    Type:                 String
+    Default:              t2.micro
+
+Resources:
+  SimpleEC2Instance1:
+    Type:                 AWS::EC2::Instance
+    Properties:
+      AvailabilityZone:   !Ref MumbaiAZ1
+      ImageId:            !Ref AmazonLinuxImageId
+      InstanceType:       !Ref FreeTierInstanceType
+      KeyName:            aws-kp
+      SecurityGroups:
+        - !ImportValue master-sg::SecurityGroup1
+  SimpleEC2Instance2:
+    Type:                 AWS::EC2::Instance
+    Properties:
+      AvailabilityZone:   !Ref MumbaiAZ1
+      ImageId:            !Ref AmazonLinuxImageId
+      InstanceType:       !Ref FreeTierInstanceType
+      KeyName:            aws-kp
+      SecurityGroups:
+        - !ImportValue master-sg::SecurityGroup2
+
+Outputs:
+  SimpleEC2Instance1:
+    Description:          A simple ec2 instance
+    Value:                !Ref SimpleEC2Instance1
+    Export:
+      Name:               !Sub ${AWS::StackName}::SimpleEC2Instance1
+  SimpleEC2Instance2:
+    Description:          A simple ec2 instance
+    Value:                !Ref SimpleEC2Instance2
+    Export:
+      Name:               !Sub ${AWS::StackName}::SimpleEC2Instance2
