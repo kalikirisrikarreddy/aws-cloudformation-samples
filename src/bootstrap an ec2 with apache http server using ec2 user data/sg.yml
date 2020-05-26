@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description:              This contains security group deployment
+
+Resources:
+
+  SimpleSecurityGroup:
+    Type:                 AWS::EC2::SecurityGroup
+    Properties:
+      GroupName:          SimpleSecurityGroup
+      GroupDescription:   allow http connections only
+  HttpRequestIngress:
+    Type:                 AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol:         tcp
+      FromPort:           80
+      ToPort:             80
+      CidrIp:             0.0.0.0/0
+      GroupId:            !GetAtt SimpleSecurityGroup.GroupId
+  SSHIngress:
+    Type:                 AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol:         tcp
+      FromPort:           22
+      ToPort:             22
+      CidrIp:             45.112.186.36/32
+      GroupId:            !GetAtt SimpleSecurityGroup.GroupId
+
+Outputs:
+  SimpleSecurityGroup:
+    Description:          A simple security group
+    Value:                !Ref SimpleSecurityGroup
+    Export:
+      Name:               !Sub ${AWS::StackName}::SimpleSecurityGroup
