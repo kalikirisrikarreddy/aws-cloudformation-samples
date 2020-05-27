@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion:          2010-09-09
+
+Description:                       contains declaration spot fleet
+
+
+Parameters:
+  PreferredAllocationStrategy:
+    Type:                          String
+    AllowedValues:
+      - capacityOptimized
+      - diversified
+      - lowestPrice
+    Default:                       diversified
+  # two AMIs
+  AmazonLinuxImageId1:
+    Type:                          String
+    Default:                       ami-051dfee3fa484ecce
+  AmazonLinuxImageId2:
+    Type:                          String
+    Default:                       ami-cf82a8a0
+  # two AZs
+  MumbaiAZ1:
+    Type:                          String
+    Default:                       ap-south-1a
+  MumbaiAZ2:
+    Type:                          String
+    Default:                       ap-south-1b
+  # two instance type
+  MicroTierInstanceType:
+    Type:                          String
+    Default:                       t2.micro
+  NanoTierInstanceType:
+    Type:                          String
+    Default:                       t2.nano
+  # two subnets can also be specified for a more diversified spot fleet
+  # but considered two each per AMIs, AZ and Instance Type should be enough
+  # to understand the concepts
+
+Resources:
+  SampleFleet:
+    Type:                          AWS::EC2::SpotFleet
+    Properties:
+      SpotFleetRequestConfigData:
+        AllocationStrategy:        !Ref PreferredAllocationStrategy
+        TargetCapacity:            2
+        IamFleetRole:              arn:aws:iam::058363540711:role/aws-ec2-spot-fleet-tagging-role
+        Type:                      request
+        LaunchSpecifications:
+          - ImageId :              !Ref AmazonLinuxImageId1
+            InstanceType:          !Ref MicroTierInstanceType
+            KeyName:               aws-kp
+            Placement:
+              AvailabilityZone :   !Ref MumbaiAZ1
+          - ImageId :              !Ref AmazonLinuxImageId2
+            InstanceType:          !Ref MicroTierInstanceType
+            KeyName:               aws-kp
+            Placement:
+              AvailabilityZone :   !Ref MumbaiAZ2
+
+Outputs:
+  SampleFleet:
+    Description:                   a sample ec2 spot instance fleet
+    Value:                         !Ref SampleFleet
+    Export:
+      Name:                        !Sub ${AWS::StackName}::SampleFleet
