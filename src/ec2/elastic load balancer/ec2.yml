@@ -1,0 +1,87 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description:              ec2 instances behind load balancers
+
+Parameters:
+  AmazonLinuxImageId:
+    Type:                 String
+    Default:              ami-051dfee3fa484ecce
+  MumbaiAZ1:
+    Type:                 String
+    Default:              ap-south-1a
+  MumbaiAZ2:
+    Type:                 String
+    Default:              ap-south-1b
+  FreeTierInstanceType:
+    Type:                 String
+    Default:              t2.micro
+
+Resources:
+  SimpleEC2Instance1:
+    Type:                 AWS::EC2::Instance
+    Properties:
+      AvailabilityZone:   !Ref MumbaiAZ1
+      ImageId:            !Ref AmazonLinuxImageId
+      InstanceType:       !Ref FreeTierInstanceType
+      KeyName:            aws-kp
+      SecurityGroupIds:
+        - !ImportValue master-sg::SimpleEC2InstanceSecurityGroupId
+      UserData:
+        Fn::Base64:       !Sub |
+          #!/bin/bash
+          yum update -y
+          yum install -y httpd.x86_64
+          systemctl start httpd.service
+          systemctl enable httpd.service
+          echo "Hello World" > /var/www/html/index.html
+  SimpleEC2Instance2:
+    Type:                 AWS::EC2::Instance
+    Properties:
+      AvailabilityZone:   !Ref MumbaiAZ2
+      ImageId:            !Ref AmazonLinuxImageId
+      InstanceType:       !Ref FreeTierInstanceType
+      KeyName:            aws-kp
+      SecurityGroupIds:
+        - !ImportValue master-sg::SimpleEC2InstanceSecurityGroupId
+      UserData:
+        Fn::Base64:       !Sub |
+          #!/bin/bash
+          yum update -y
+          yum install -y httpd.x86_64
+          systemctl start httpd.service
+          systemctl enable httpd.service
+          echo "Hello World" > /var/www/html/index.html
+  SimpleEC2Instance3:
+    Type:                 AWS::EC2::Instance
+    Properties:
+      AvailabilityZone:   !Ref MumbaiAZ1
+      ImageId:            !Ref AmazonLinuxImageId
+      InstanceType:       !Ref FreeTierInstanceType
+      KeyName:            aws-kp
+      SecurityGroupIds:
+        - !ImportValue master-sg::SimpleEC2InstanceSecurityGroupId
+      UserData:
+        Fn::Base64:       !Sub |
+          #!/bin/bash
+          yum update -y
+          yum install -y httpd.x86_64
+          systemctl start httpd.service
+          systemctl enable httpd.service
+          echo "Hello World" > /var/www/html/index.html
+
+Outputs:
+  SimpleEC2Instance1:
+    Description:          ec2 instance in MumbaiAZ1
+    Value:                !Ref SimpleEC2Instance1
+    Export:
+      Name:               !Sub ${AWS::StackName}::SimpleEC2Instance1
+  SimpleEC2Instance2:
+    Description:          ec2 instance in MumbaiAZ2
+    Value:                !Ref SimpleEC2Instance2
+    Export:
+      Name:               !Sub ${AWS::StackName}::SimpleEC2Instance2
+  SimpleEC2Instance3:
+    Description:          ec2 instance in MumbaiAZ1
+    Value:                !Ref SimpleEC2Instance3
+    Export:
+      Name:               !Sub ${AWS::StackName}::SimpleEC2Instance3

@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion:              2010-09-09
+
+Description:                           contains elastic network interface configuration
+
+Parameters:
+  PreferredSubnetId:
+    Type:                              String
+    AllowedValues:
+      - subnet-085dcd44
+      - subnet-82b192ea
+      - subnet-f8a87283
+    Default:                           subnet-085dcd44
+
+Resources:
+  SimpleElasticNetworkInterface:
+    Type:                              AWS::EC2::NetworkInterface
+    Properties:
+      #ENI can have multiple IP addresses,
+      #use cases can be
+      #replying on requests forwarded to multiple IP Addresses
+      #could be shared among associated VMs
+      SecondaryPrivateIpAddressCount:  1
+      SubnetId:                        !Ref PreferredSubnetId
+
+Outputs:
+  SimpleElasticNetworkInterface:
+    Description:                       a simple elastic network interface
+    Value:                             !Ref SimpleElasticNetworkInterface
+    Export:
+      Name:                            !Sub ${AWS::StackName}::SimpleElasticNetworkInterface

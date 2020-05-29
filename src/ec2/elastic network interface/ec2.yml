@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion:   2010-09-09
+
+Description:                simple ec2 instance
+
+Parameters:
+  AmazonLinuxImageId:
+    Type:                   String
+    Default:                ami-051dfee3fa484ecce
+  #the subnet in which ENI is created is ap-south-1b
+  MumbaiAZ2:
+    Type:                   String
+    Default:                ap-south-1b
+  FreeTierInstanceType:
+    Type:                   String
+    Default:                t3.micro
+
+Resources:
+  SimpleEC2Instance:
+    Type:                   AWS::EC2::Instance
+    Properties:
+      AvailabilityZone:     !Ref MumbaiAZ2
+      ImageId:              !Ref AmazonLinuxImageId
+      InstanceType:         !Ref FreeTierInstanceType
+      KeyName:              aws-kp
+      NetworkInterfaces:
+        - NetworkInterfaceId: !ImportValue master-eni::SimpleElasticNetworkInterface
+          DeviceIndex:      0
+
+Outputs:
+  SimpleEC2Instance:
+    Description:            a simple ec2 Instance
+    Value:                  !Ref SimpleEC2Instance
+    Export:
+      Name:                 !Sub ${AWS::StackName}::SimpleEC2Instance

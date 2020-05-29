@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion:          2010-09-09
+
+Description:                       internet facing load balancer
+
+Resources:
+  InternetFacingALBSecurityGroup:
+    Type:                          AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription:            for internet facing application load balancer
+      SecurityGroupIngress:
+        - CidrIp:                  0.0.0.0/0
+          IpProtocol:              tcp
+          FromPort:                80
+          ToPort:                  80
+  SimpleEC2InstanceSecurityGroup:
+    Type:                          AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription:            for ec2 instances behind application load balancer
+      SecurityGroupIngress:
+        - SourceSecurityGroupId:   !GetAtt InternetFacingALBSecurityGroup.GroupId
+          IpProtocol:              tcp
+          FromPort:                80
+          ToPort:                  80
+
+Outputs:
+  InternetFacingALBSecurityGroup:
+    Description:                   security group for internet facing application load balancer
+    Value:                         !GetAtt InternetFacingALBSecurityGroup.GroupId
+    Export:
+      Name:                        !Sub ${AWS::StackName}::InternetFacingALBSecurityGroupId
+  SimpleEC2InstanceSecurityGroup:
+    Description:                   security group for internal application load balancer
+    Value:                         !GetAtt SimpleEC2InstanceSecurityGroup.GroupId
+    Export:
+      Name:                        !Sub ${AWS::StackName}::SimpleEC2InstanceSecurityGroupId
