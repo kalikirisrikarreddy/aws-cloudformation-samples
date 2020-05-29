@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion:      2010-09-09
+
+Description:                   for auto scaling groups
+
+Parameters:
+  MumbaiAZ1:
+    Type:                      String
+    Default:                   ap-south-1a
+  MumbaiAZ2:
+    Type:                      String
+    Default:                   ap-south-1b
+  MumbaiAZ3:
+    Type:                      String
+    Default:                   ap-south-1c
+
+Resources:
+  SimpleAutoScalingGroup:
+    Type:                      AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AvailabilityZones:
+        - !Ref MumbaiAZ1
+        - !Ref MumbaiAZ2
+        - !Ref MumbaiAZ3
+      DesiredCapacity:         2
+      MinSize:                 1
+      MaxSize:                 3
+      HealthCheckGracePeriod:  5
+      HealthCheckType:         ELB
+      TargetGroupARNs:
+        - !ImportValue master-alb::ExternalApplicationLoadBalancerTargetGroup
+      LaunchTemplate:
+        LaunchTemplateId:      !Ref SimpleLaunchTemplate
+        Version:               !GetAtt SimpleLaunchTemplate.LatestVersionNumber
+  SimpleLaunchTemplate:
+    Type:                      AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateData:
+        ImageId:               ami-051dfee3fa484ecce
+        InstanceType:          t2.micro
+        KeyName:               aws-kp
+        SecurityGroupIds:
+          - !ImportValue master-sg::EC2SecurityGroupId
+        UserData:
+          Fn::Base64:          !Sub |
+            #!/bin/bash
+            yum update -y
+            yum install -y httpd.x86_64
+            systemctl start httpd.service
+            systemctl enable httpd.service
+            echo "Hello World" > /var/www/html/index.html
+
+Outputs:
+  SimpleAutoScalingGroup:
+    Description:               a simple auto scaling groups
+    Value:                     !Ref SimpleAutoScalingGroup
+    Export:
+      Name:                    !Sub ${AWS::StackName}::SimpleAutoScalingGroup
