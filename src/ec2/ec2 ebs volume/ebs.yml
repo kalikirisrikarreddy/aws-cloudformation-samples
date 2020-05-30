@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description:              for managing elastic block store volumes
+
+Parameters:
+  MumbaiAZ1:
+    Type:                 String
+    Default:              ap-south-1a
+
+Resources:
+  AdditionalVolume1:
+    Type:                 AWS::EC2::Volume
+    Properties:
+      AvailabilityZone:   !Ref MumbaiAZ1
+      VolumeType:         gp2
+      Size:               1
+  AdditionalVolume2:
+    Type:                 AWS::EC2::Volume
+    Properties:
+      AvailabilityZone:   !Ref MumbaiAZ1
+      VolumeType:         gp2
+      Size:               1
+
+Outputs:
+  AdditionalVolume1:
+    Description:          additional volume 1
+    Value:                !Ref AdditionalVolume1
+    Export:
+      Name:               !Sub ${AWS::StackName}::AdditionalVolume1
+  AdditionalVolume2:
+    Description:          additional volume 2
+    Value:                !Ref AdditionalVolume2
+    Export:
+      Name:               !Sub ${AWS::StackName}::AdditionalVolume2

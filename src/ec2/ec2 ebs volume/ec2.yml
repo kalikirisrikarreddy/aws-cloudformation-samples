@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description:              for ec2 instance setup
+
+Parameters:
+  MumbaiAZ1:
+    Type:                 String
+    Default:              ap-south-1a
+  PreferredInstanceType:
+    Type:                 String
+    Default:              t2.micro
+  AmazonLinuxImageId:
+    Type:                 String
+    Default:              ami-051dfee3fa484ecce
+
+Resources:
+  SimpleEC2Instance:
+    Type:                 AWS::EC2::Instance
+    Properties:
+      AvailabilityZone:   !Ref MumbaiAZ1
+      InstanceType:       !Ref PreferredInstanceType
+      ImageId:            !Ref AmazonLinuxImageId
+      KeyName:            aws-kp
+      SecurityGroupIds:
+        - !ImportValue master-sg::EC2InstanceSecurityGroup
+      Volumes:
+        - Device:         /dev/sdf
+          VolumeId:       !ImportValue master-ebs::AdditionalVolume1
+        - Device:         /dev/sdg
+          VolumeId:       !ImportValue master-ebs::AdditionalVolume2
+      UserData:
+        Fn::Base64:       !Sub |
+          #!/bin/bash
+          yum update -y
+          mkfs -t ext4 /dev/xvdf
+          mkfs -t ext4 /dev/xvdg
+          mkdir /vol1
+          mkdir /vol2
+          mount /dev/xvdf /vol1
+          mount /dev/xvdg /vol2
+          touch /vol1/HelloVol1.txt
+          touch /vol2/HelloVol2.txt
+          echo "Hello, This is Volume 1" > /vol1/HelloVol1.txt
+          echo "Hello, This is Volume 2" > /vol2/HelloVol2.txt
