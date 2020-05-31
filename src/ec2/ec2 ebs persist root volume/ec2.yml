@@ -1,0 +1,32 @@
+AWSTemplateFormatVersion:         2010-09-09
+
+Description:                      ec2 whose root device/volume cannot be deleted.
+
+Parameters:
+  PreferredAMIID:
+    Type:                         String
+    Default:                      ami-cf82a8a0
+  PreferredAZ:
+    Type:                         String
+    Default:                      ap-south-1a
+
+Resources:
+  SimpleEC2Instance:
+    Type:                         AWS::EC2::Instance
+    Properties:
+      AvailabilityZone:           !Ref PreferredAZ
+      InstanceType:               t2.micro
+      ImageId:                    !Ref PreferredAMIID
+      BlockDeviceMappings:
+        - DeviceName:             /dev/xvda
+          Ebs:
+            DeleteOnTermination:  false
+      SecurityGroupIds:
+        - !ImportValue master-sg::EC2InstanceSSHSecurityGroupId
+
+Outputs:
+  SimpleEC2Instance:
+    Description:                  a simple ec2 instance created from EBS backed AMI
+    Value:                        !Ref SimpleEC2Instance
+    Export:
+      Name:                       !Sub ${AWS::StackName}::SimpleEC2Instance
