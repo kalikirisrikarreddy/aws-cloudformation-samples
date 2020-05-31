@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion:         2010-09-09
+
+Description:                      security groups
+
+Resources:
+  EC2InstanceSSHSecurityGroup:
+    Type:                         AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription:           ssh access to instance
+      SecurityGroupIngress:
+        - CidrIp:                 49.204.183.197/32
+          FromPort:               22
+          ToPort:                 22
+          IpProtocol:             tcp
+
+Outputs:
+  EC2InstanceSSHSecurityGroupId:
+    Description:                  id of EC2InstanceSSHSecurityGroup
+    Value:                        !GetAtt EC2InstanceSSHSecurityGroup.GroupId
+    Export:
+      Name:                       !Sub ${AWS::StackName}::EC2InstanceSSHSecurityGroupId
