@@ -1,0 +1,29 @@
+AWSTemplateFormatVersion:    2010-09-09
+
+Description:                 cloud watch alarms for various ec2 metrics provided by aws
+
+Resources:
+  HighNetworkOutBytesAlarm:
+    Type:                    AWS::CloudWatch::Alarm
+    Properties:
+      MetricName:            NetworkOut
+      Namespace:             AWS/EC2
+      ActionsEnabled:        FALSE
+      AlarmDescription:      this alarm is meant to signal/notify high network traffic
+      ComparisonOperator:    GreaterThanThreshold
+      DatapointsToAlarm:     1
+      Dimensions:
+        - Name:              InstanceId
+          Value:             !ImportValue master-ec2::SimpleEC2Instance
+      EvaluationPeriods:     1
+      Period:                300
+      Statistic:             Maximum
+      Threshold:             40
+      Unit:                  Kilobytes
+
+Outputs:
+  HighNetworkOutBytesAlarm:
+    Description:             this alarm is meant to signal/notify high network traffic
+    Value:                   !Ref HighNetworkOutBytesAlarm
+    Export:
+      Name:                  !Sub ${AWS::StackName}::HighNetworkOutBytesAlarm

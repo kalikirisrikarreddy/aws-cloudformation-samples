@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description:              This contains ec2 instance deployment
+
+Parameters:
+  AmazonLinuxImageId:
+    Type:                 String
+    Default:              ami-051dfee3fa484ecce
+  MumbaiAZ1:
+    Type:                 String
+    Default:              ap-south-1a
+  FreeTierInstanceType:
+    Type:                 String
+    Default:              t2.micro
+
+Resources:
+  SimpleEC2Instance:
+    Type:                 AWS::EC2::Instance
+    Properties:
+      AvailabilityZone:   !Ref MumbaiAZ1
+      ImageId:            !Ref AmazonLinuxImageId
+      InstanceType:       !Ref FreeTierInstanceType
+      KeyName:            aws-kp
+      SecurityGroups:
+        - !ImportValue master-sg::SimpleSecurityGroup
+      UserData:
+        Fn::Base64:       !Sub |
+          #!/bin/bash
+          yum update -y
+          yum install -y httpd.x86_64
+          systemctl start httpd.service
+          systemctl enable httpd.service
+          echo "Hello World" > /var/www/html/index.html
+
+Outputs:
+  SimpleEC2Instance:
+    Description:          A simple ec2 instance
+    Value:                !Ref SimpleEC2Instance
+    Export:
+      Name:               !Sub ${AWS::StackName}::SimpleEC2Instance
