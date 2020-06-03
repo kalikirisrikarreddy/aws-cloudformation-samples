@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion:    2010-09-09
+
+Description:                 required security groups
+
+Resources:
+  EC2SSHSecurityGroup:
+    Type:                    AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription:      security group for ssh access
+      VpcId:                 !ImportValue master-vpc::SimpleVPCID
+      SecurityGroupIngress:
+        - CidrIp:            45.112.186.36/32
+          IpProtocol:        tcp
+          FromPort:          22
+          ToPort:            22
+
+Outputs:
+  EC2SSHSecurityGroupId:
+    Value:                   !GetAtt EC2SSHSecurityGroup.GroupId
+    Export:
+      Name:                  !Sub ${AWS::StackName}::EC2SSHSecurityGroupId

@@ -1,0 +1,94 @@
+AWSTemplateFormatVersion:   2010-09-09
+
+Description:                creating a non default VPC
+
+Parameters:
+  MumbaiAZ1:
+    Type:                   String
+    Default:                ap-south-1a
+  MumbaiAZ2:
+    Type:                   String
+    Default:                ap-south-1b
+  MumbaiAZ3:
+    Type:                   String
+    Default:                ap-south-1c
+
+Resources:
+  SimpleVPC:
+    Type:                   AWS::EC2::VPC
+    Properties:
+      CidrBlock:            192.168.0.0/16
+      EnableDnsHostnames:   TRUE
+  PrivateSubNet1:
+    Type:                   AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:     !Ref MumbaiAZ1
+      CidrBlock:            192.168.1.0/24
+      MapPublicIpOnLaunch:  FALSE
+      VpcId:                !Ref SimpleVPC
+  PublicSubNet1:
+    Type:                   AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:     !Ref MumbaiAZ1
+      CidrBlock:            192.168.2.0/24
+      MapPublicIpOnLaunch:  TRUE
+      VpcId:                !Ref SimpleVPC
+  PrivateSubNet2:
+    Type:                   AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:     !Ref MumbaiAZ2
+      CidrBlock:            192.168.3.0/24
+      MapPublicIpOnLaunch:  FALSE
+      VpcId:                !Ref SimpleVPC
+  PublicSubNet2:
+    Type:                   AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:     !Ref MumbaiAZ2
+      CidrBlock:            192.168.4.0/24
+      MapPublicIpOnLaunch:  TRUE
+      VpcId:                !Ref SimpleVPC
+  PrivateSubNet3:
+    Type:                   AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:     !Ref MumbaiAZ3
+      CidrBlock:            192.168.5.0/24
+      MapPublicIpOnLaunch:  FALSE
+      VpcId:                !Ref SimpleVPC
+  PublicSubNet3:
+    Type:                   AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:     !Ref MumbaiAZ3
+      CidrBlock:            192.168.6.0/24
+      MapPublicIpOnLaunch:  TRUE
+      VpcId:                !Ref SimpleVPC
+
+Outputs:
+  SimpleVPCID:
+    Description:            VPC ID of Simple VPC
+    Value:                  !Ref SimpleVPC
+    Export:
+      Name:                 !Sub ${AWS::StackName}::SimpleVPCID
+  PrivateSubNet1ID:
+    Value:                  !Ref PrivateSubNet1
+    Export:
+      Name:                 !Sub ${AWS::StackName}::PrivateSubNet1ID
+  PrivateSubNet2ID:
+    Value:                  !Ref PrivateSubNet2
+    Export:
+      Name:                 !Sub ${AWS::StackName}::PrivateSubNet2ID
+  PrivateSubNet3ID:
+    Value:                  !Ref PrivateSubNet3
+    Export:
+      Name:                 !Sub ${AWS::StackName}::PrivateSubNet3ID
+  PublicSubNet1ID:
+    Value:                  !Ref PublicSubNet1
+    Export:
+      Name:                 !Sub ${AWS::StackName}::PublicSubNet1ID
+  PublicSubNet2ID:
+    Value:                  !Ref PublicSubNet2
+    Export:
+      Name:                 !Sub ${AWS::StackName}::PublicSubNet2ID
+  PublicSubNet3ID:
+    Value:                  !Ref PublicSubNet3
+    Export:
+      Name:                 !Sub ${AWS::StackName}::PublicSubNet3ID

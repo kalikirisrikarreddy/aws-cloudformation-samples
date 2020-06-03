@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion:       2010-09-09
+
+Description:                    observe behaviour of ec2 instances in private and public subnets
+
+Parameters:
+  PreferredImageId:
+    Type:                       String
+    Default:                    ami-051dfee3fa484ecce
+
+Resources:
+  EC2InstanceInPrivateSubNet1:
+    Type:                       AWS::EC2::Instance
+    Properties:
+      SubnetId:                 !ImportValue master-vpc::PrivateSubNet1ID
+      SecurityGroupIds:
+        - !ImportValue master-sg::EC2SSHSecurityGroupId
+      InstanceType:             t2.micro
+      ImageId:                  !Ref PreferredImageId
+      KeyName:                  aws-kp
+  EC2InstanceInPublicSubNet1:
+    Type:                       AWS::EC2::Instance
+    Properties:
+      SubnetId:                 !ImportValue master-vpc::PublicSubNet1ID
+      SecurityGroupIds:
+        - !ImportValue master-sg::EC2SSHSecurityGroupId
+      InstanceType:             t2.micro
+      ImageId:                  !Ref PreferredImageId
+      KeyName:                  aws-kp
+
+Outputs:
+  EC2InstanceInPrivateSubNet1:
+    Value:                      !Ref EC2InstanceInPrivateSubNet1
+    Export:
+      Name:                     !Sub ${AWS::StackName}::EC2InstanceInPrivateSubNet1
+  EC2InstanceInPublicSubNet1:
+    Value:                      !Ref EC2InstanceInPublicSubNet1
+    Export:
+      Name:                     !Sub ${AWS::StackName}::EC2InstanceInPublicSubNet1

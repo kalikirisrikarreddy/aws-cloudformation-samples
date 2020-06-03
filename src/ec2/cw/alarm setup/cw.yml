@@ -6,9 +6,9 @@ Resources:
   HighNetworkOutBytesAlarm:
     Type:                    AWS::CloudWatch::Alarm
     Properties:
+      ActionsEnabled:        FALSE
       MetricName:            NetworkOut
       Namespace:             AWS/EC2
-      ActionsEnabled:        FALSE
       AlarmDescription:      this alarm is meant to signal/notify high network traffic
       ComparisonOperator:    GreaterThanThreshold
       DatapointsToAlarm:     1
@@ -18,8 +18,10 @@ Resources:
       EvaluationPeriods:     1
       Period:                300
       Statistic:             Maximum
-      Threshold:             40
-      Unit:                  Kilobytes
+      Threshold:             40000
+      Unit:                  Bytes
+      AlarmActions:
+        - arn:aws:automate:ap-south-1:ec2:stop
 
 Outputs:
   HighNetworkOutBytesAlarm:
