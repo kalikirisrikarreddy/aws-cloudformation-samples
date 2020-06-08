@@ -3,28 +3,52 @@ AWSTemplateFormatVersion:              2010-09-09
 Description:                           contains elastic network interface configuration
 
 Parameters:
-  PreferredSubnetId:
+  AvailableSubnetId1:
     Type:                              String
-    AllowedValues:
-      - subnet-085dcd44
-      - subnet-82b192ea
-      - subnet-f8a87283
     Default:                           subnet-085dcd44
+  AvailableSubnetId2:
+    Type:                              String
+    Default:                           subnet-82b192ea
+  AvailableSubnetId3:
+    Type:                              String
+    Default:                           subnet-f8a87283
 
 Resources:
-  SimpleElasticNetworkInterface:
+  SimpleElasticNetworkInterface1:
     Type:                              AWS::EC2::NetworkInterface
     Properties:
-      #ENI can have multiple IP addresses,
-      #use cases can be
-      #replying on requests forwarded to multiple IP Addresses
-      #could be shared among associated VMs
       SecondaryPrivateIpAddressCount:  1
-      SubnetId:                        !Ref PreferredSubnetId
+      SubnetId:                        !Ref AvailableSubnetId1
+      GroupSet:
+        - !ImportValue master-sg::EC2SSHSecurityGroupId
+  SimpleElasticNetworkInterface2:
+    Type:                              AWS::EC2::NetworkInterface
+    Properties:
+      SecondaryPrivateIpAddressCount:  1
+      SubnetId:                        !Ref AvailableSubnetId2
+      GroupSet:
+        - !ImportValue master-sg::EC2SSHSecurityGroupId
+  SimpleElasticNetworkInterface3:
+    Type:                              AWS::EC2::NetworkInterface
+    Properties:
+      SecondaryPrivateIpAddressCount:  1
+      SubnetId:                        !Ref AvailableSubnetId3
+      GroupSet:
+        - !ImportValue master-sg::EC2SSHSecurityGroupId
 
 Outputs:
-  SimpleElasticNetworkInterface:
+  SimpleElasticNetworkInterface1:
     Description:                       a simple elastic network interface
-    Value:                             !Ref SimpleElasticNetworkInterface
+    Value:                             !Ref SimpleElasticNetworkInterface1
     Export:
-      Name:                            !Sub ${AWS::StackName}::SimpleElasticNetworkInterface
+      Name:                            !Sub ${AWS::StackName}::SimpleElasticNetworkInterface1
+  SimpleElasticNetworkInterface2:
+    Description:                       a simple elastic network interface
+    Value:                             !Ref SimpleElasticNetworkInterface2
+    Export:
+      Name:                            !Sub ${AWS::StackName}::SimpleElasticNetworkInterface2
+  SimpleElasticNetworkInterface3:
+    Description:                       a simple elastic network interface
+    Value:                             !Ref SimpleElasticNetworkInterface3
+    Export:
+      Name:                            !Sub ${AWS::StackName}::SimpleElasticNetworkInterface3

@@ -1,34 +1,99 @@
-AWSTemplateFormatVersion:   2010-09-09
+AWSTemplateFormatVersion: 2010-09-09
 
-Description:                simple ec2 instance
+Description:              simple ec2 instance
 
 Parameters:
   AmazonLinuxImageId:
-    Type:                   String
-    Default:                ami-051dfee3fa484ecce
-  #the subnet in which ENI is created is ap-south-1b
-  MumbaiAZ2:
-    Type:                   String
-    Default:                ap-south-1b
+    Type:                 String
+    Default:              ami-051dfee3fa484ecce
   FreeTierInstanceType:
-    Type:                   String
-    Default:                t3.micro
+    Type:                 String
+    Default:              t3.micro
+  AvailableSubnetId1:
+    Type:                 String
+    Default:              subnet-085dcd44
+  AvailableSubnetId2:
+    Type:                 String
+    Default:              subnet-82b192ea
+  AvailableSubnetId3:
+    Type:                 String
+    Default:              subnet-f8a87283
 
 Resources:
-  SimpleEC2Instance:
-    Type:                   AWS::EC2::Instance
+  SimpleEC2Instance1:
+    Type:                 AWS::EC2::Instance
     Properties:
-      AvailabilityZone:     !Ref MumbaiAZ2
-      ImageId:              !Ref AmazonLinuxImageId
-      InstanceType:         !Ref FreeTierInstanceType
-      KeyName:              aws-kp
+      ImageId:            !Ref AmazonLinuxImageId
+      InstanceType:       !Ref FreeTierInstanceType
+      KeyName:            aws-kp
       NetworkInterfaces:
-        - NetworkInterfaceId: !ImportValue master-eni::SimpleElasticNetworkInterface
-          DeviceIndex:      0
+        - NetworkInterfaceId: !ImportValue master-eni::SimpleElasticNetworkInterface1
+          DeviceIndex:    0
+      UserData:
+        Fn::Base64:       !Sub |
+          #!/bin/bash
+          yum update -y
+          yum install -y httpd.x86_64
+          systemctl start httpd.service
+          systemctl enable httpd.service
+          echo "Hello From EC1 Instance" > /var/www/html/index.html
+          yum install -y ec2-net-utils
+          ec2ifscan
+          systemctl reboot -i
+  SimpleEC2Instance2:
+    Type:                 AWS::EC2::Instance
+    Properties:
+      ImageId:            !Ref AmazonLinuxImageId
+      InstanceType:       !Ref FreeTierInstanceType
+      KeyName:            aws-kp
+      NetworkInterfaces:
+        - NetworkInterfaceId: !ImportValue master-eni::SimpleElasticNetworkInterface2
+          DeviceIndex:    0
+      UserData:
+        Fn::Base64:       !Sub |
+          #!/bin/bash
+          yum update -y
+          yum install -y httpd.x86_64
+          systemctl start httpd.service
+          systemctl enable httpd.service
+          echo "Hello From EC2 Instance" > /var/www/html/index.html
+          yum install -y ec2-net-utils
+          ec2ifscan
+          systemctl reboot -i
+  SimpleEC2Instance3:
+    Type:                 AWS::EC2::Instance
+    Properties:
+      ImageId:            !Ref AmazonLinuxImageId
+      InstanceType:       !Ref FreeTierInstanceType
+      KeyName:            aws-kp
+      NetworkInterfaces:
+        - NetworkInterfaceId: !ImportValue master-eni::SimpleElasticNetworkInterface3
+          DeviceIndex:    0
+      UserData:
+        Fn::Base64:       !Sub |
+          #!/bin/bash
+          yum update -y
+          yum install -y httpd.x86_64
+          systemctl start httpd.service
+          systemctl enable httpd.service
+          echo "Hello From EC3 Instance" > /var/www/html/index.html
+          yum install -y ec2-net-utils
+          ec2ifscan
+          systemctl reboot -i
 
 Outputs:
-  SimpleEC2Instance:
-    Description:            a simple ec2 Instance
-    Value:                  !Ref SimpleEC2Instance
+  SimpleEC2Instance1:
+    Description:          a simple ec2 Instance
+    Value:                !Ref SimpleEC2Instance1
     Export:
-      Name:                 !Sub ${AWS::StackName}::SimpleEC2Instance
+      Name:               !Sub ${AWS::StackName}::SimpleEC2Instance1
+  SimpleEC2Instance2:
+    Description:          a simple ec2 Instance
+    Value:                !Ref SimpleEC2Instance2
+    Export:
+      Name:               !Sub ${AWS::StackName}::SimpleEC2Instance2
+  SimpleEC2Instance3:
+    Description:          a simple ec2 Instance
+    Value:                !Ref SimpleEC2Instance3
+    Export:
+      Name:               !Sub ${AWS::StackName}::SimpleEC2Instance3
