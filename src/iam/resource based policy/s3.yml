@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description:              simple s3 buckets
+
+Resources:
+  ImageBucket:
+    Type:                 AWS::S3::Bucket
+  BucketImageReadPolicy:
+    Type:                 AWS::S3::BucketPolicy
+    Properties:
+      Bucket:             !Ref ImageBucket
+      PolicyDocument:
+        Version:          "2012-10-17"
+        Statement:
+          - Sid:          "Allow Listing Objects In The Bucket"
+            Effect:       "Allow"
+            Principal:
+              AWS:
+                - !ImportValue master-usr::ArnOfDeveloper1
+                - !ImportValue master-usr::ArnOfDeveloper2
+            Action:
+              - "s3:ListBucket"
+            Resource:     !Sub "${ImageBucket.Arn}"
+
+Outputs:
+  ImageBucket:
+    Value:                !Ref ImageBucket
+    Export:
+      Name:               !Sub ${AWS::StackName}::ImageBucket
+  ImageBucketArn:
+    Value:                !GetAtt ImageBucket.Arn
+    Export:
+      Name:               !Sub ${AWS::StackName}::ImageBucketArn
+  BucketImageReadPolicy:
+    Value:                !Ref BucketImageReadPolicy
+    Export:
+      Name:               !Sub ${AWS::StackName}::BucketImageReadPolicy

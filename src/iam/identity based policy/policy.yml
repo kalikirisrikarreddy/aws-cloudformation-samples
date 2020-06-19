@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description:              all identity based policies
+
+Resources:
+  ViewEC2OnlyPolicy:
+    Type:                 AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName:  ViewEC2OnlyPolicy
+      Users:
+        - !ImportValue master-usr::UserNameForDeveloper1
+        - !ImportValue master-usr::UserNameForDeveloper2
+      PolicyDocument:
+        Version:          2012-10-17
+        Statement:
+          - Effect:       Allow
+            Action:
+              - ec2:DescribeInstances
+            Resource:     "*"
+
+Outputs:
+  ViewEC2OnlyPolicyArn:
+    Value:                !Ref ViewEC2OnlyPolicy
+    Export:
+      Name:               !Sub ${AWS::StackName}::ViewEC2OnlyPolicyArn
