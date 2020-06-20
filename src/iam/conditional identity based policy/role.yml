@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion:        2010-09-09
+
+Description:                     sample roles
+
+Resources:
+  DeveloperRole:
+    Type:                        AWS::IAM::Role
+    Properties:
+      RoleName:                  Developer
+      AssumeRolePolicyDocument:
+        Version:                 2012-10-17
+        Statement:
+          - Effect:              Allow
+            Principal:
+              AWS:
+                - "058363540711"
+            Action:              "sts:AssumeRole"
+
+Outputs:
+  DeveloperRoleArn:
+    Value:                       !GetAtt DeveloperRole.Arn
+    Export:
+      Name:                      !Sub ${AWS::StackName}::DeveloperRoleArn
+  DeveloperRole:
+    Value:                       !Ref DeveloperRole
+    Export:
+      Name:                      !Sub ${AWS::StackName}::DeveloperRole

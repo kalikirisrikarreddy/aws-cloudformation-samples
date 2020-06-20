@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion:             2010-09-09
+
+Description:                          users needed to play with iam identity based policies
+
+Resources:
+  Developer1:
+    Type:                             AWS::IAM::User
+    Properties:
+      UserName:                       Developer1
+      LoginProfile:
+        Password:                     Developer1IsOneOfTheBest
+        PasswordResetRequired:        false
+  Developer2:
+    Type:                             AWS::IAM::User
+    Properties:
+      UserName:                       Developer2
+      LoginProfile:
+        Password:                     Developer2IsOneOfTheBest
+        PasswordResetRequired:        false
+  DeveloperCommunity:
+    Type:                             AWS::IAM::Group
+    Properties:
+      GroupName:                      DeveloperCommunity
+  AddDevelopersToDeveloperCommunity:
+    Type:                             AWS::IAM::UserToGroupAddition
+    Properties:
+      GroupName:                      !Ref DeveloperCommunity
+      Users:
+        - !Ref Developer1
+        - !Ref Developer2
+
+Outputs:
+  UserNameForDeveloper1:
+    Value:                            !Ref Developer1
+    Export:
+      Name:                           !Sub ${AWS::StackName}::UserNameForDeveloper1
+  UserNameForDeveloper2:
+    Value:                            !Ref Developer2
+    Export:
+      Name:                           !Sub ${AWS::StackName}::UserNameForDeveloper2
+  ArnOfDeveloper1:
+    Value:                            !GetAtt Developer1.Arn
+    Export:
+      Name:                           !Sub ${AWS::StackName}::ArnOfDeveloper1
+  ArnOfDeveloper2:
+    Value:                            !GetAtt Developer2.Arn
+    Export:
+      Name:                           !Sub ${AWS::StackName}::ArnOfDeveloper2
+  DeveloperCommunityArn:
+    Value:                            !GetAtt DeveloperCommunity.Arn
+    Export:
+      Name:                           !Sub ${AWS::StackName}::DeveloperCommunityArn

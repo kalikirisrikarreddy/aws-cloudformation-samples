@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion:                                2010-09-09
+
+Resources:
+  EC2PolicyForDeveloper:
+    Type:                                                AWS::IAM::ManagedPolicy
+    Properties:
+      Roles:
+        - !ImportValue master-role::DeveloperRole
+      PolicyDocument:
+        Version:                                         2012-10-17
+        Statement:
+          - Effect:                                      Allow
+            Action:
+              - "ec2:DescribeInstances"
+              - "ec2:DescribeInstanceStatus"
+              - "ec2:DescribeTags"
+            Resource:                                    "*"
+            Condition:
+              StringEqualsIfExists:
+                "ec2:ResourceTag/clean-slate-instance":  "yes"
+  AssumeRoleForDeveloper:
+    Type:                                                AWS::IAM::ManagedPolicy
+    Properties:
+      Users:
+        - !ImportValue master-usr::UserNameForDeveloper1
+        - !ImportValue master-usr::UserNameForDeveloper2
+      PolicyDocument:
+        Version:                                         2012-10-17
+        Statement:
+          - Effect:                                      Allow
+            Action:
+              - "sts:AssumeRole"
+            Resource:                                    "*"
