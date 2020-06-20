@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion:         2010-09-09
+
+Resources:
+  EC2PermissionsForDeveloper:
+    Type:                         AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName:          EC2PermissionsForDeveloper
+      PolicyDocument:
+        Version:                  2012-10-17
+        Statement:
+          - Effect:               Allow
+            Resource:             "*"
+            Action:
+              - "ec2:DescribeInstances"
+      Users:
+        - !ImportValue master-usr::UserNameForDeveloper1
+        - !ImportValue master-usr::UserNameForDeveloper2
+
+Outputs:
+  EC2PermissionsForDeveloperArn:
+    Value:                        !Ref EC2PermissionsForDeveloper
+    Export:
+      Name:                       !Sub ${AWS::StackName}::EC2PermissionsForDeveloperArn

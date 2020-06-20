@@ -1,0 +1,20 @@
+AWSTemplateFormatVersion:              2010-09-09
+
+Resources:
+  PermissionsBoundaryForDeveloper:
+    Type:                              AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName:               PermissionsBoundaryForDeveloper
+      PolicyDocument:
+        Version:                       2012-10-17
+        Statement:
+          - Effect:                    Allow
+            Resource:                  "*"
+            Action:
+              - "s3:*"
+
+Outputs:
+  PermissionsBoundaryForDeveloperArn:
+    Value:                             !Ref PermissionsBoundaryForDeveloper
+    Export:
+      Name:                            !Sub ${AWS::StackName}::PermissionsBoundaryForDeveloperArn
