@@ -1,54 +1,45 @@
-AWSTemplateFormatVersion:                      2010-09-09
-
-Description:                                   simple application load balancers
+AWSTemplateFormatVersion:          2010-09-09
 
 Resources:
-  ExternalApplicationLoadBalancerTargetGroup:
-    Type:                                      AWS::ElasticLoadBalancingV2::TargetGroup
+  InternetFacingLoadBalancer:
+    Type:                          AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      HealthCheckEnabled:                      true
-      HealthCheckIntervalSeconds:              5
-      HealthCheckPath:                         /
-      HealthCheckPort:                         80
-      HealthCheckProtocol:                     HTTP
-      HealthCheckTimeoutSeconds:               3
-      HealthyThresholdCount:                   2
-      UnhealthyThresholdCount :                2
-      Port:                                    80
-      Protocol:                                HTTP
-      VpcId:                                   vpc-38424750
-  ExternalApplicationLoadBalancerListener:
-    Type:                                      AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      LoadBalancerArn:                         !Ref ExternalApplicationLoadBalancer
-      Protocol:                                HTTP
-      Port:                                    80
-      DefaultActions:
-        - Type:                                forward
-          ForwardConfig:
-            TargetGroups:
-              - TargetGroupArn:                !Ref ExternalApplicationLoadBalancerTargetGroup
-  ExternalApplicationLoadBalancer:
-    Type:                                      AWS::ElasticLoadBalancingV2::LoadBalancer
-    Properties:
-      IpAddressType:                           ipv4
-      Scheme:                                  internet-facing
-      Type:                                    application
+      IpAddressType:               ipv4
+      Scheme:                      internet-facing
       Subnets:
         - subnet-085dcd44
         - subnet-82b192ea
         - subnet-f8a87283
       SecurityGroups:
-        - !ImportValue master-sg::InternetFacingLoadBalancerSecurityGroupId
-
-Outputs:
-  ExternalApplicationLoadBalancer:
-    Description:                               simple external load balancer
-    Value:                                     !Ref ExternalApplicationLoadBalancer
-    Export:
-      Name:                                    !Sub ${AWS::StackName}::ExternalApplicationLoadBalancer
-  ExternalApplicationLoadBalancerTargetGroup:
-    Description:                               target group to forward requests to
-    Value:                                     !Ref ExternalApplicationLoadBalancerTargetGroup
-    Export:
-      Name:                                    !Sub ${AWS::StackName}::ExternalApplicationLoadBalancerTargetGroup
+        - !ImportValue master-sg::InternetFacingALBSecurityGroupId
+      Type:                        application
+  StudentAPICallTargetGroup:
+    Type:                          AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId:                       vpc-38424750
+      HealthCheckEnabled:          true
+      HealthCheckIntervalSeconds:  10
+      HealthCheckPath:             /api/v1/health
+      HealthCheckPort:             8080
+      HealthCheckProtocol:         HTTP
+      HealthCheckTimeoutSeconds:   5
+      HealthyThresholdCount:       2
+      Matcher:
+        HttpCode:                  200
+      Port:                        8080
+      Protocol:                    HTTP
+      TargetType:                  instance
+      Targets:
+        - Id:                      !ImportValue master-ec2::SimpleEC2Instance
+          Port:                    8080
+  StudentAPICallListener:
+    Type:                          AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      Port:                        80
+      Protocol:                    HTTP
+      LoadBalancerArn:             !Ref InternetFacingLoadBalancer
+      DefaultActions:
+        - Type:                    forward
+          ForwardConfig:
+            TargetGroups:
+              - TargetGroupArn:    !Ref    StudentAPICallTargetGroup

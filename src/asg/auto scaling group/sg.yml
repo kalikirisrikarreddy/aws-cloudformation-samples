@@ -1,35 +1,39 @@
-AWSTemplateFormatVersion:                   2010-09-09
+AWSTemplateFormatVersion:            2010-09-09
 
-Description:                                intantiate security groups
+Description:                         intantiate security groups
 
 Resources:
-  InternetFacingLoadBalancerSecurityGroup:
-    Type:                                   AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription:                     for internet facing load balancer
-      SecurityGroupIngress:
-        - CidrIp:                           0.0.0.0/0
-          IpProtocol:                       tcp
-          FromPort:                         80
-          ToPort:                           80
   EC2SecurityGroup:
-    Type:                                   AWS::EC2::SecurityGroup
+    Type:                            AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription:                     for auto scaling group
+      GroupDescription:              for ec2 instance
       SecurityGroupIngress:
-        - SourceSecurityGroupId:            !GetAtt InternetFacingLoadBalancerSecurityGroup.GroupId
-          IpProtocol:                       tcp
-          FromPort:                         80
-          ToPort:                           80
+        - SourceSecurityGroupId:     !GetAtt InternetFacingALBSecurityGroup.GroupId
+          IpProtocol:                tcp
+          FromPort:                  8080
+          ToPort:                    8080
+        - CidrIp:                    45.112.187.9/32
+          IpProtocol:                tcp
+          FromPort:                  22
+          ToPort:                    22
+  InternetFacingALBSecurityGroup:
+    Type:                            AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription:              for internet facing load balancer
+      SecurityGroupIngress:
+        - CidrIp:                    0.0.0.0/0
+          IpProtocol:                tcp
+          FromPort:                  80
+          ToPort:                    80
 
 Outputs:
-  InternetFacingLoadBalancerSecurityGroup:
-    Description:                            internet facing load balancer security group
-    Value:                                  !GetAtt InternetFacingLoadBalancerSecurityGroup.GroupId
+  EC2SecurityGroupId:
+    Description:                     ec2 security group
+    Value:                           !GetAtt EC2SecurityGroup.GroupId
     Export:
-      Name:                                 !Sub ${AWS::StackName}::InternetFacingLoadBalancerSecurityGroupId
-  EC2SecurityGroup:
-    Description:                            auto scaling group security group
-    Value:                                  !GetAtt EC2SecurityGroup.GroupId
+      Name:                          !Sub ${AWS::StackName}::EC2SecurityGroupId
+  InternetFacingALBSecurityGroupId:
+    Description:                     internet facing load balancer security group
+    Value:                           !GetAtt InternetFacingALBSecurityGroup.GroupId
     Export:
-      Name:                                 !Sub ${AWS::StackName}::EC2SecurityGroupId
+      Name:                          !Sub ${AWS::StackName}::InternetFacingALBSecurityGroupId
