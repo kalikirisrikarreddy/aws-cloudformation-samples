@@ -1,0 +1,14 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description:              records to handle requests coming to wannabe-devops.net
+
+Resources:
+  APIRecordSet:
+    Type:                 AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId:       Z003151618CNW9AWW0EZX
+      AliasTarget:
+        DNSName:          !ImportValue master-alb::InternetFacingLoadBalancerDNSName
+        HostedZoneId:     !ImportValue master-alb::InternetFacingLoadBalancerCanonicalHostedZoneID
+      Type:               A
+      Name:               student.wannabe-devops.net

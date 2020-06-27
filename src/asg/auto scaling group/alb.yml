@@ -1,45 +1,57 @@
-AWSTemplateFormatVersion:          2010-09-09
+AWSTemplateFormatVersion:                           2010-09-09
 
 Resources:
   InternetFacingLoadBalancer:
-    Type:                          AWS::ElasticLoadBalancingV2::LoadBalancer
+    Type:                                           AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      IpAddressType:               ipv4
-      Scheme:                      internet-facing
+      IpAddressType:                                ipv4
+      Scheme:                                       internet-facing
       Subnets:
         - subnet-085dcd44
         - subnet-82b192ea
         - subnet-f8a87283
       SecurityGroups:
         - !ImportValue master-sg::InternetFacingALBSecurityGroupId
-      Type:                        application
+      Type:                                         application
   StudentAPICallTargetGroup:
-    Type:                          AWS::ElasticLoadBalancingV2::TargetGroup
+    Type:                                           AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      VpcId:                       vpc-38424750
-      HealthCheckEnabled:          true
-      HealthCheckIntervalSeconds:  10
-      HealthCheckPath:             /api/v1/health
-      HealthCheckPort:             8080
-      HealthCheckProtocol:         HTTP
-      HealthCheckTimeoutSeconds:   5
-      HealthyThresholdCount:       2
+      VpcId:                                        vpc-38424750
+      HealthCheckEnabled:                           true
+      HealthCheckIntervalSeconds:                   10
+      HealthCheckPath:                              /api/v1/health
+      HealthCheckPort:                              8080
+      HealthCheckProtocol:                          HTTP
+      HealthCheckTimeoutSeconds:                    5
+      HealthyThresholdCount:                        2
       Matcher:
-        HttpCode:                  200
-      Port:                        8080
-      Protocol:                    HTTP
-      TargetType:                  instance
+        HttpCode:                                   200
+      Port:                                         8080
+      Protocol:                                     HTTP
+      TargetType:                                   instance
       Targets:
-        - Id:                      !ImportValue master-ec2::SimpleEC2Instance
-          Port:                    8080
+        - Id:                                       !ImportValue master-ec2::SimpleEC2Instance1
+          Port:                                     8080
+        - Id:                                       !ImportValue master-ec2::SimpleEC2Instance2
+          Port:                                     8080
   StudentAPICallListener:
-    Type:                          AWS::ElasticLoadBalancingV2::Listener
+    Type:                                           AWS::ElasticLoadBalancingV2::Listener
     Properties:
-      Port:                        80
-      Protocol:                    HTTP
-      LoadBalancerArn:             !Ref InternetFacingLoadBalancer
+      Port:                                         80
+      Protocol:                                     HTTP
+      LoadBalancerArn:                              !Ref InternetFacingLoadBalancer
       DefaultActions:
-        - Type:                    forward
+        - Type:                                     forward
           ForwardConfig:
             TargetGroups:
-              - TargetGroupArn:    !Ref    StudentAPICallTargetGroup
+              - TargetGroupArn:                     !Ref    StudentAPICallTargetGroup
+
+Outputs:
+  InternetFacingLoadBalancerDNSName:
+    Value:                                          !GetAtt InternetFacingLoadBalancer.DNSName
+    Export:
+      Name:                                         !Sub ${AWS::StackName}::InternetFacingLoadBalancerDNSName
+  InternetFacingLoadBalancerCanonicalHostedZoneID:
+    Value:                                          !GetAtt InternetFacingLoadBalancer.CanonicalHostedZoneID
+    Export:
+      Name:                                         !Sub ${AWS::StackName}::InternetFacingLoadBalancerCanonicalHostedZoneID
