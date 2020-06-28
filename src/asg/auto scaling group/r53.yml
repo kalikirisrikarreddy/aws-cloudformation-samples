@@ -11,4 +11,4 @@ Resources:
         DNSName:          !ImportValue master-alb::InternetFacingLoadBalancerDNSName
         HostedZoneId:     !ImportValue master-alb::InternetFacingLoadBalancerCanonicalHostedZoneID
       Type:               A
-      Name:               student.wannabe-devops.net
+      Name:               apis.wannabe-devops.net
