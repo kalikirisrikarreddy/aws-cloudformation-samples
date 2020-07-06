@@ -28,10 +28,6 @@ Resources:
         HttpCode:                                   200
       Port:                                         8080
       Protocol:                                     HTTP
-      TargetType:                                   instance
-      Targets:
-        - Id:                                       !ImportValue master-ec2::SimpleEC2Instance1
-          Port:                                     8080
   PersonAPICallTargetGroup:
     Type:                                           AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -47,10 +43,6 @@ Resources:
         HttpCode:                                   200
       Port:                                         8080
       Protocol:                                     HTTP
-      TargetType:                                   instance
-      Targets:
-        - Id:                                       !ImportValue master-ec2::SimpleEC2Instance2
-          Port:                                     8080
   APICallListener:
     Type:                                           AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -97,6 +89,10 @@ Resources:
               - /api/*/people/*
 
 Outputs:
+  InternetFacingLoadBalancerFullName:
+    Value:                                          !GetAtt InternetFacingLoadBalancer.LoadBalancerFullName
+    Export:
+      Name:                                         !Sub ${AWS::StackName}::InternetFacingLoadBalancerFullName
   InternetFacingLoadBalancerDNSName:
     Value:                                          !GetAtt InternetFacingLoadBalancer.DNSName
     Export:
@@ -105,3 +101,19 @@ Outputs:
     Value:                                          !GetAtt InternetFacingLoadBalancer.CanonicalHostedZoneID
     Export:
       Name:                                         !Sub ${AWS::StackName}::InternetFacingLoadBalancerCanonicalHostedZoneID
+  StudentAPICallTargetGroupArn:
+    Value:                                          !Ref StudentAPICallTargetGroup
+    Export:
+      Name:                                         !Sub ${AWS::StackName}::StudentAPICallTargetGroupArn
+  StudentAPICallTargetGroupFullName:
+    Value:                                          !GetAtt StudentAPICallTargetGroup.TargetGroupFullName
+    Export:
+      Name:                                         !Sub ${AWS::StackName}::StudentAPICallTargetGroupFullName
+  PersonAPICallTargetGroupArn:
+    Value:                                          !Ref PersonAPICallTargetGroup
+    Export:
+      Name:                                         !Sub ${AWS::StackName}::PersonAPICallTargetGroupArn
+  PersonAPICallTargetGroupFullName:
+    Value:                                          !GetAtt PersonAPICallTargetGroup.TargetGroupFullName
+    Export:
+      Name:                                         !Sub ${AWS::StackName}::PersonAPICallTargetGroupFullName

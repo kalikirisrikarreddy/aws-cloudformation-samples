@@ -1,0 +1,162 @@
+AWSTemplateFormatVersion:               2010-09-09
+
+Parameters:
+  AmazonLinuxImageId:
+    Type:                               String
+    Default:                            ami-051dfee3fa484ecce
+  MumbaiAZ1:
+    Type:                               String
+    Default:                            ap-south-1a
+  MumbaiAZ2:
+    Type:                               String
+    Default:                            ap-south-1b
+
+Resources:
+  StudentAutoScalingPolicy:
+    Type:                               AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName:             !Ref StudentAppASG
+      PolicyType:                       TargetTrackingScaling
+      TargetTrackingConfiguration:
+        DisableScaleIn:                 true
+        TargetValue:                    100
+        PredefinedMetricSpecification:
+          PredefinedMetricType:         ALBRequestCountPerTarget
+          ResourceLabel:                !Join
+            - '/'
+            - - !ImportValue master-alb::InternetFacingLoadBalancerFullName
+              - !ImportValue master-alb::StudentAPICallTargetGroupFullName
+  PersonAutoScalingPolicy:
+    Type:                               AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName:             !Ref PersonAppASG
+      PolicyType:                       TargetTrackingScaling
+      TargetTrackingConfiguration:
+        DisableScaleIn:                 true
+        TargetValue:                    100
+        PredefinedMetricSpecification:
+          PredefinedMetricType:         ALBRequestCountPerTarget
+          ResourceLabel:                !Join
+            - '/'
+            - - !ImportValue master-alb::InternetFacingLoadBalancerFullName
+              - !ImportValue master-alb::PersonAPICallTargetGroupFullName
+  StudentAppASG:
+    Type:                               AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AvailabilityZones:
+        - !Ref MumbaiAZ1
+        - !Ref MumbaiAZ2
+      HealthCheckGracePeriod:           300
+      HealthCheckType:                  ELB
+      LaunchTemplate:
+        LaunchTemplateId:               !Ref StudentAPILaunchTemplate
+        Version:                        !GetAtt StudentAPILaunchTemplate.LatestVersionNumber
+      MaxSize:                          3
+      DesiredCapacity:                  1
+      MinSize:                          1
+      TargetGroupARNs:
+        - !ImportValue master-alb::StudentAPICallTargetGroupArn
+  PersonAppASG:
+    Type:                               AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AvailabilityZones:
+        - !Ref MumbaiAZ1
+        - !Ref MumbaiAZ2
+      HealthCheckGracePeriod:           300
+      HealthCheckType:                  ELB
+      LaunchTemplate:
+        LaunchTemplateId:               !Ref PersonAPILaunchTemplate
+        Version:                        !GetAtt PersonAPILaunchTemplate.LatestVersionNumber
+      MaxSize:                          3
+      DesiredCapacity:                  1
+      MinSize:                          1
+      TargetGroupARNs:
+        - !ImportValue master-alb::PersonAPICallTargetGroupArn
+  StudentAPILaunchTemplate:
+    Type:                               AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateData:
+        ImageId:                        !Ref AmazonLinuxImageId
+        InstanceType:                   t2.small
+        KeyName:                        aws-kp
+        SecurityGroupIds:
+          - !ImportValue master-sg::EC2SecurityGroupId
+        UserData:
+          Fn::Base64:                   !Sub |
+            #!/bin/bash
+            sudo su
+            yum update -y
+            yum install git -y
+            cd /home/ec2-user/
+            git clone https://github.com/kalikirisrikarreddy/student-api
+            chmod 0755 /home/ec2-user/student-api
+            yum install java-1.8.0-openjdk -y
+            yum install maven -y
+            mvn -f /home/ec2-user/student-api/pom.xml clean install
+            touch /home/ec2-user/ws-boot.sh
+            touch /etc/systemd/system/student_api.service
+            echo "java -Xms128M -Xmx256M -XX:MaxMetaspaceSize=128M -Dspring.profiles.active=dev -jar /home/ec2-user/student-api/target/student-api-0.0.1-SNAPSHOT.jar" >> /home/ec2-user/ws-boot.sh
+            chmod 744 /home/ec2-user/ws-boot.sh
+            echo "[Unit]" >> /etc/systemd/system/student_api.service
+            echo "Description=Student API Service" >> /etc/systemd/system/student_api.service
+            echo "[Service]" >> /etc/systemd/system/student_api.service
+            echo "User=ec2-user" >> /etc/systemd/system/student_api.service
+            echo "#change this directory into your workspace" >> /etc/systemd/system/student_api.service
+            echo "WorkingDirectory=/home/ec2-user/student-api" >> /etc/systemd/system/student_api.service
+            echo "#path to the executable bash script which executes the jar file" >> /etc/systemd/system/student_api.service
+            echo "ExecStart=/bin/bash /home/ec2-user/ws-boot.sh" >> /etc/systemd/system/student_api.service
+            echo "SuccessExitStatus=143" >> /etc/systemd/system/student_api.service
+            echo "TimeoutStopSec=600" >> /etc/systemd/system/student_api.service
+            echo "Restart=on-failure" >> /etc/systemd/system/student_api.service
+            echo "RestartSec=600" >> /etc/systemd/system/student_api.service
+            echo "[Install]" >> /etc/systemd/system/student_api.service
+            echo "WantedBy=multi-user.target" >> /etc/systemd/system/student_api.service
+            chmod 744 /etc/systemd/system/student_api.service
+            systemctl daemon-reload
+            systemctl enable student_api.service
+            systemctl start student_api
+            systemctl status student_api -l
+  PersonAPILaunchTemplate:
+    Type:                               AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateData:
+        ImageId:                        !Ref AmazonLinuxImageId
+        InstanceType:                   t2.small
+        KeyName:                        aws-kp
+        SecurityGroupIds:
+          - !ImportValue master-sg::EC2SecurityGroupId
+        UserData:
+          Fn::Base64:                   !Sub |
+            #!/bin/bash
+            sudo su
+            yum update -y
+            yum install git -y
+            cd /home/ec2-user/
+            git clone https://github.com/kalikirisrikarreddy/person-api
+            chmod 0755 /home/ec2-user/person-api
+            yum install java-1.8.0-openjdk -y
+            yum install maven -y
+            mvn -f /home/ec2-user/person-api/pom.xml clean install
+            touch /home/ec2-user/ws-boot.sh
+            touch /etc/systemd/system/person_api.service
+            echo "java -Xms128M -Xmx256M -XX:MaxMetaspaceSize=128M -Dspring.profiles.active=dev -jar /home/ec2-user/person-api/target/person-api-0.0.1-SNAPSHOT.jar" >> /home/ec2-user/ws-boot.sh
+            chmod 744 /home/ec2-user/ws-boot.sh
+            echo "[Unit]" >> /etc/systemd/system/person_api.service
+            echo "Description=Person API Service" >> /etc/systemd/system/person_api.service
+            echo "[Service]" >> /etc/systemd/system/person_api.service
+            echo "User=ec2-user" >> /etc/systemd/system/person_api.service
+            echo "#change this directory into your workspace" >> /etc/systemd/system/person_api.service
+            echo "WorkingDirectory=/home/ec2-user/person-api" >> /etc/systemd/system/person_api.service
+            echo "#path to the executable bash script which executes the jar file" >> /etc/systemd/system/person_api.service
+            echo "ExecStart=/bin/bash /home/ec2-user/ws-boot.sh" >> /etc/systemd/system/person_api.service
+            echo "SuccessExitStatus=143" >> /etc/systemd/system/person_api.service
+            echo "TimeoutStopSec=600" >> /etc/systemd/system/person_api.service
+            echo "Restart=on-failure" >> /etc/systemd/system/person_api.service
+            echo "RestartSec=600" >> /etc/systemd/system/person_api.service
+            echo "[Install]" >> /etc/systemd/system/person_api.service
+            echo "WantedBy=multi-user.target" >> /etc/systemd/system/person_api.service
+            chmod 744 /etc/systemd/system/person_api.service
+            systemctl daemon-reload
+            systemctl enable person_api.service
+            systemctl start person_api
+            systemctl status person_api -l
