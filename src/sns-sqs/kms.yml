@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Resources:
+  SimpleKMSKey:
+    Type:                 AWS::KMS::Key
+    Properties:
+      KeyPolicy:
+        Version:          '2012-10-17'
+        Statement:
+        - Effect:         Allow
+          Principal:
+            AWS:          arn:aws:iam::058363540711:root
+          Action:         kms:*
+          Resource:       "*"
+        - Effect:         Allow
+          Principal:
+            Service:      sns.amazonaws.com
+          Action:
+            - kms:Decrypt
+            - kms:GenerateDataKey*
+          Resource:       "*"
+
+Outputs:
+  SimpleKMSKeyId:
+    Value:                !Ref SimpleKMSKey
+    Export:
+      Name:               !Sub ${AWS::StackName}::SimpleKMSKeyId

@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion:             2010-09-09
+
+Resources:
+  QueueForAPIEvents:
+    Type:                             AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId:                 !ImportValue master-kms::SimpleKMSKeyId
+      QueueName:                      queue-for-api-events
+      ReceiveMessageWaitTimeSeconds:  20
+  QueuePolicyOfQueueForAPIEvents:
+    Type:                             AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref QueueForAPIEvents
+      PolicyDocument:
+        Statement:
+          - Effect:                   Allow
+            Principal:
+              AWS:                    "*"
+            Action:                   SQS:SendMessage
+            Resource:                 "*"
+            Condition:
+              Bool:
+                aws:SecureTransport:  true
+          - Effect:                   Allow
+            Principal:
+              AWS:                    "*"
+            Action:                   SQS:ReceiveMessage
+            Resource:                 "*"
+
+Outputs:
+  QueueForAPIEventsURL:
+    Value:                            !Ref QueueForAPIEvents
+    Export:
+      Name:                           !Sub ${AWS::StackName}::QueueForAPIEventsURL
+  QueueForAPIEventsARN:
+    Value:                            !GetAtt QueueForAPIEvents.Arn
+    Export:
+      Name:                           !Sub ${AWS::StackName}::QueueForAPIEventsARN
+  NameOfQueueForAPIEvents:
+    Value:                            !GetAtt QueueForAPIEvents.QueueName
+    Export:
+      Name:                           !Sub ${AWS::StackName}::NameOfQueueForAPIEvents

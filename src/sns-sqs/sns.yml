@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Resources:
+  APIEventsTopic:
+    Type:                 AWS::SNS::Topic
+    Properties:
+      DisplayName:        api-events
+      TopicName:          api-events
+      KmsMasterKeyId:     !ImportValue master-kms::SimpleKMSKeyId
+  APIEventsSubscription:
+    Type:                 AWS::SNS::Subscription
+    Properties:
+      TopicArn:           !Ref APIEventsTopic
+      Protocol:           sqs
+      Endpoint:           !ImportValue master-sqs::QueueForAPIEventsARN
+
+Outputs:
+  APIEventsTopicArn:
+    Value:                !Ref APIEventsTopic
+    Export:
+      Name:               !Sub ${AWS::StackName}::APIEventsTopicArn
