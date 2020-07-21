@@ -10,7 +10,9 @@ Resources:
           - Sid:             allow all ecr actions to users in my account
             Effect:          Allow
             Principal:
-               AWS:          arn:aws:iam::058363540711:root
+               Service:
+                 - ecs.amazonaws.com
+                 - ecs-tasks.amazonaws.com
             Action:          ecr:*
 
 Outputs:

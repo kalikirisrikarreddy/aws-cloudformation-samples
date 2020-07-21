@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion:                 2010-09-09
+
+Resources:
+  SimpleRouteTable:
+    Type:                                 AWS::EC2::RouteTable
+    Properties:
+      VpcId:                              !ImportValue master-vpc::SimpleVPCID
+  PrivateSubnet1ToRouteTableAssociation:
+    Type:                                 AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:                       !Ref SimpleRouteTable
+      SubnetId:                           !ImportValue master-vpc::PrivateSubNet1ID
+  PrivateSubnet2ToRouteTableAssociation:
+    Type:                                 AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:                       !Ref SimpleRouteTable
+      SubnetId:                           !ImportValue master-vpc::PrivateSubNet2ID
+  PrivateSubnet3ToRouteTableAssociation:
+    Type:                                 AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:                       !Ref SimpleRouteTable
+      SubnetId:                           !ImportValue master-vpc::PrivateSubNet3ID
+
+Outputs:
+  SimpleRouteTableId:
+    Value:                                !Ref SimpleRouteTable
+    Export:
+      Name:                               !Sub ${AWS::StackName}::SimpleRouteTableId

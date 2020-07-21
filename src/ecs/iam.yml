@@ -1,0 +1,71 @@
+AWSTemplateFormatVersion:        2010-09-09
+
+Resources:
+  SimpleExecutionRole:
+    Type:                        AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect:              Allow
+            Principal:
+              Service:           ecs-tasks.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+  SimpleECSTaskRole:
+    Type:                        AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect:              Allow
+            Principal:
+              Service:           ecs-tasks.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName:            core-actions-policy
+          PolicyDocument:
+            Statement:
+              - Effect:          Allow
+                Resource:        "*"
+                Action:
+                  - s3:*
+              - Effect:          Allow
+                Resource:        "*"
+                Action:
+                  - kms:*
+              - Effect:          Allow
+                Resource:        "*"
+                Action:
+                  - sns:*
+              - Effect:          Allow
+                Resource:        "*"
+                Action:
+                  - sqs:*
+              - Effect:          Allow
+                Resource:        "*"
+                Action:
+                  - cloudwatch:*
+              - Effect:          Allow
+                Resource:        "*"
+                Action:
+                  - ecr:*
+
+Outputs:
+  SimpleECSTaskRoleName:
+    Value:                       !Ref SimpleECSTaskRole
+    Export:
+      Name:                      !Sub ${AWS::StackName}::SimpleECSTaskRoleName
+  SimpleECSTaskRoleArn:
+    Value:                       !GetAtt SimpleECSTaskRole.Arn
+    Export:
+      Name:                      !Sub ${AWS::StackName}::SimpleECSTaskRoleArn
+  SimpleExecutionRoleName:
+    Value:                       !Ref SimpleExecutionRole
+    Export:
+      Name:                      !Sub ${AWS::StackName}::SimpleExecutionRoleName
+  SimpleExecutionRoleArn:
+    Value:                       !GetAtt SimpleExecutionRole.Arn
+    Export:
+      Name:                      !Sub ${AWS::StackName}::SimpleExecutionRoleArn

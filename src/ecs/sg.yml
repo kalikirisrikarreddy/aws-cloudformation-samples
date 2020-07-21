@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion:           2010-09-09
+
+Resources:
+  SimpleSecurityGroup:
+    Type:                           AWS::EC2::SecurityGroup
+    Properties:
+      VpcId:                        !ImportValue master-vpc::SimpleVPCID
+      GroupDescription:             simple security group
+      SecurityGroupIngress:
+        - FromPort:                 443
+          ToPort:                   443
+          IpProtocol:               tcp
+          CidrIp:                   !ImportValue master-vpc::SimpleVPCCIDR
+  SimpleSecurityGroup2:
+    Type:                           AWS::EC2::SecurityGroup
+    Properties:
+      VpcId:                        !ImportValue master-vpc::SimpleVPCID
+      GroupDescription:             simple security group
+      SecurityGroupEgress:
+        - FromPort:                 443
+          ToPort:                   443
+          IpProtocol:               tcp
+          CidrIp:                   !ImportValue master-vpc::SimpleVPCCIDR
+        - FromPort:                 53
+          ToPort:                   53
+          IpProtocol:               tcp
+          CidrIp:                   !ImportValue master-vpc::SimpleVPCCIDR
+        - FromPort:                 53
+          ToPort:                   53
+          IpProtocol:               udp
+          CidrIp:                   !ImportValue master-vpc::SimpleVPCCIDR
+        - FromPort:                 0
+          ToPort:                   65535
+          IpProtocol:               tcp
+          DestinationPrefixListId:  pl-78a54011 
+
+Outputs:
+  SimpleSecurityGroupId:
+    Value:                          !GetAtt SimpleSecurityGroup.GroupId
+    Export:
+      Name:                         !Sub ${AWS::StackName}::SimpleSecurityGroupId
+  SimpleSecurityGroup2Id:
+    Value:                          !GetAtt SimpleSecurityGroup2.GroupId
+    Export:
+      Name:                         !Sub ${AWS::StackName}::SimpleSecurityGroup2Id
