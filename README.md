@@ -4,5 +4,5 @@ This Repository is being used to manage cloud formation templates which are ofte
 
 ### NOTE:
 
-1.  assume stack name as master-${filename}, example : master-sg for stack defined by sg.yml
+1.  assume stack name as master-${filename}(sometimes, test-${filename}), example : master-sg(sometimes test-sg) for stack defined by sg.yml
 2.  the region used when these cloud formation templates were deployed is ap-south-1 i.e, Mumbai
